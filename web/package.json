@@ -1,0 +1,30 @@
+{
+  "name": "mdcrawl-web",
+  "version": "1.0.0",
+  "description": "MDCrawl网页爬虫工具的Web界面",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": ["markdown", "crawler", "web-scraping", "html-to-markdown", "web-ui"],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^1.8.2",
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0",
+    "pinia": "^2.1.7",
+    "marked": "^12.0.1",
+    "highlight.js": "^11.9.0",
+    "@fortawesome/fontawesome-free": "^6.5.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "autoprefixer": "^10.4.18",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "vite": "^5.1.6"
+  }
+}
