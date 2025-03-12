@@ -1,7 +1,8 @@
 # MDCrawl
 
-一个可以将 WEB 页面转换 Markdown 文档的工具
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache2.0-yellow.svg)](https://opensource.org/license/apache-2-0) &ensp;
 
+一个可以将 WEB 页面转换 Markdown 文档的工具
 ## 项目简介
 
 MDCrawl 是一个专业的网页爬虫工具，能够将网页内容转换为 Markdown 格式并保存。它支持递归爬取同源 URL，可以处理图片资源的下载，并且提供了灵活的配置选项。项目同时提供命令行工具和Web界面，满足不同用户的使用需求。
@@ -237,6 +238,12 @@ npm run build
 - Markdown转换配置：图片下载、目录生成等
 - 规则引擎配置：自定义规则、AI辅助分析等
 - 输出配置：工作目录、日志级别等
+
+## 联系作者
+欢迎关注我的公众号
+<div align="center" style="display: flex; gap: 20px;">
+    <img src="search.png" alt="联系作者" width="500" />
+</div>
 
 ## 许可证
 
