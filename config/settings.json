@@ -1,0 +1,37 @@
+{
+  "output": {
+    "logLevel": "info",
+    "showProgress": true
+  },
+  "crawler": {
+    "concurrency": 3,
+    "timeout": 30000,
+    "requestInterval": 1000,
+    "maxRetries": 3,
+    "userAgent": "MDCrawl/1.0.0",
+    "respectRobotsTxt": true
+  },
+  "urlFilters": {
+    "allowedDomains": [],
+    "excludePatterns": [
+      "\\.(css|js|json|xml|less|scss|png|jpg|jpeg|gif|pdf|doc|docx|xls|xlsx|zip|rar|gz|bz2|7z)$",
+      "\\?(utm_|source=|from=)"
+    ]
+  },
+  "markdown": {
+    "keepHtml": false,
+    "downloadImages": true,
+    "imagesDir": "images",
+    "childrenDir": "children",
+    "addSourceUrl": true,
+    "addTableOfContents": true
+  },
+  "rules": {
+    "enableAI": false,
+    "ai": {
+      "apiKey": "",
+      "model": "gpt-3.5-turbo",
+      "promptTemplate": "请分析以下HTML内容，提取主要文本内容并按照重要性组织成Markdown格式。\n\n请遵循以下规则：\n1. 保留页面的标题层级结构\n2. 提取正文中的主要内容，忽略导航、页脚等非核心内容\n3. 保留列表和表格的结构\n4. 提取图片并标注适当的描述\n5. 保留链接，但使用Markdown格式\n\n输出格式应为规范的Markdown，包含标题、段落、列表、链接和图片。"
+    }
+  }
+}

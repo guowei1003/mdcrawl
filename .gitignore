@@ -1,0 +1,5 @@
+# 依赖管理
+node_modules/
+prompt
+*lock.json
+tests/
