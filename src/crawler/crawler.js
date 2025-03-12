@@ -14,6 +14,8 @@ const cheerio = require('cheerio');
 const MarkdownConverter = require('../converter/markdown-converter');
 const UrlAnalyzer = require('../parser/url-analyzer');
 const { setupLogger } = require('../utils/logger');
+// 导入站点特定规则
+const siteRules = require('../../config/site-rules');
 
 /**
  * 爬虫类
@@ -263,6 +265,12 @@ class Crawler {
         throw new Error('爬虫已停止');
       }
       
+      // 获取站点特定规则
+      const siteSpecificRules = siteRules.getSiteRuleByUrl(url);
+      if (siteSpecificRules) {
+        this.logger.info(`应用站点特定规则: ${new URL(url).hostname}`);
+      }
+      
       // 转换为Markdown
       const { markdown, links, images } = await this.markdownConverter.convert(html, url);
       
@@ -271,11 +279,16 @@ class Crawler {
       
       // 下载图片
       if (this.config.markdown.downloadImages && images.length > 0 && !this.isStopped) {
-        await this.downloadImages(images, outputPath);
+        // 检查是否有站点特定的图片处理规则
+        let imageConfig = this.config.markdown;
+        if (siteSpecificRules && siteSpecificRules.images) {
+          imageConfig = { ...imageConfig, ...siteSpecificRules.images };
+        }
+        await this.downloadImages(images, outputPath, imageConfig);
       }
       
       // 如果深度未达到最大值且未停止，将链接添加到队列
-      if (depth < this.config.crawler.maxDepth && !this.isStopped) {
+      if (depth < this.config.crawler.maxDepth && depth > 0 && !this.isStopped) {
         for (const link of links) {
           this.addToQueue(link, depth + 1, url);
         }
@@ -350,11 +363,15 @@ class Crawler {
    * 下载图片
    * @param {Array<Object>} images - 图片信息数组
    * @param {string} markdownPath - Markdown文件路径
+   * @param {Object} [imageConfig] - 图片配置，如果未提供则使用默认配置
    * @private
    */
-  async downloadImages(images, markdownPath) {
+  async downloadImages(images, markdownPath, imageConfig) {
+    // 使用提供的配置或默认配置
+    const config = imageConfig || this.config.markdown;
+    
     // 创建图片目录
-    const imagesDir = path.join(path.dirname(markdownPath), this.config.markdown.imagesDir);
+    const imagesDir = path.join(path.dirname(markdownPath), config.imagesDir);
     if (!fs.existsSync(imagesDir)) {
       fs.mkdirSync(imagesDir, { recursive: true });
     }
@@ -365,8 +382,19 @@ class Crawler {
     // 下载每个图片
     for (const image of images) {
       try {
+        // 如果已停止，则不下载
+        if (this.isStopped) {
+          break;
+        }
+        
+        // 处理图片URL（可能需要添加前缀）
+        let finalImageUrl = image.url;
+        if (config.pathPrefix && finalImageUrl.startsWith('/')) {
+          finalImageUrl = config.pathPrefix + finalImageUrl;
+        }
+        
         // 生成图片文件名
-        const imageName = path.basename(image.url).replace(/[^a-zA-Z0-9._-]/g, '_');
+        const imageName = path.basename(finalImageUrl).replace(/[^a-zA-Z0-9._-]/g, '_');
         const imageExt = path.extname(imageName) || '.jpg';
         const imageFileName = `${Date.now()}_${imageName}`;
         const imagePath = path.join(imagesDir, imageFileName);
@@ -374,22 +402,22 @@ class Crawler {
         // 下载图片
         const response = await axios({
           method: 'get',
-          url: image.url,
+          url: finalImageUrl,
           responseType: 'arraybuffer',
-          timeout: this.config.rules.images.downloadTimeout
+          timeout: config.downloadTimeout || this.config.rules.images.downloadTimeout
         });
         
         // 保存图片
         fs.writeFileSync(imagePath, response.data);
         
         // 替换Markdown中的图片URL
-        const relativeImagePath = path.join(this.config.markdown.imagesDir, imageFileName);
+        const relativeImagePath = path.join(config.imagesDir, imageFileName);
         markdownContent = markdownContent.replace(
           new RegExp(`!\\[(.*?)\\]\\(${image.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\)`, 'g'),
           `![${image.alt || ''}](${relativeImagePath})`
         );
         
-        this.logger.debug(`下载图片: ${image.url} -> ${imagePath}`);
+        this.logger.debug(`下载图片: ${finalImageUrl} -> ${imagePath}`);
       } catch (error) {
         this.logger.error(`下载图片 ${image.url} 失败: ${error.message}`);
       }

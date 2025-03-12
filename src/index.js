@@ -17,6 +17,8 @@ const { setupLogger } = require('./utils/logger');
 
 // 导入规则配置
 const rulesConfig = require('../config/rules.js');
+// 导入站点规则
+const siteRules = require('../config/site-rules.js');
 
 // 设置版本号和描述
 const packageJson = require('../package.json');
@@ -36,10 +38,23 @@ program
   .option('--ai', '启用AI辅助分析', config.get('rules.enableAI'))
   .option('--no-images', '不下载图片', true)
   .option('--config <path>', '自定义配置文件路径')
+  .option('--site-rules <path>', '自定义站点规则文件路径')
   .action(async (url, options) => {
     try {
       // 初始化日志
       const logger = setupLogger(options.output, options.verbose ? 'debug' : config.get('output.logLevel'));
+      
+      // 加载自定义站点规则（如果提供）
+      if (options.siteRules) {
+        try {
+          const customSiteRules = require(path.resolve(options.siteRules));
+          // 合并自定义站点规则
+          Object.assign(siteRules.siteRules, customSiteRules.siteRules || {});
+          logger.info(`已加载自定义站点规则: ${options.siteRules}`);
+        } catch (error) {
+          logger.error(`加载自定义站点规则失败: ${error.message}`);
+        }
+      }
       
       // 合并配置
       const crawlerConfig = {

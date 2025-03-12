@@ -8,6 +8,9 @@ const cheerio = require('cheerio');
 const path = require('path');
 const URL = require('url').URL;
 
+// 导入站点特定规则
+const siteRules = require('../../config/site-rules');
+
 /**
  * Markdown转换器类
  */
@@ -248,11 +251,23 @@ class MarkdownConverter {
     // 加载HTML
     const $ = cheerio.load(html);
     
-    // 提取主要内容
-    const mainContent = this.extractMainContent($);
+    // 获取站点特定规则
+    const siteSpecificRules = siteRules.getSiteRuleByUrl(baseUrl);
     
-    // 移除不需要的元素
-    this.removeUnwantedElements($, mainContent);
+    // 合并站点规则与默认规则
+    let currentRules = this.config.rules;
+    if (siteSpecificRules) {
+      currentRules = siteRules.mergeWithDefaultRules(this.config.rules, siteSpecificRules);
+    }
+    
+    // 使用合并后的规则
+    const rulesForThisSite = { ...this.config, rules: currentRules };
+    
+    // 提取主要内容（使用站点特定选择器）
+    const mainContent = this.extractMainContent($, rulesForThisSite.rules.contentSelectors);
+    
+    // 移除不需要的元素（使用站点特定选择器）
+    this.removeUnwantedElements($, mainContent, rulesForThisSite.rules.removeSelectors);
     
     // 处理相对URL
     this.processUrls($, baseUrl);
@@ -263,7 +278,7 @@ class MarkdownConverter {
     
     // 转换为Markdown
     let markdown;
-    if (this.config.rules.enableAI && this.config.rules.ai.apiKey) {
+    if (rulesForThisSite.rules.enableAI && rulesForThisSite.rules.ai.apiKey) {
       // 使用大模型辅助分析
       markdown = await this.convertWithAI(mainContent.html(), baseUrl);
     } else {
@@ -272,7 +287,7 @@ class MarkdownConverter {
     }
     
     // 添加目录（如果启用）
-    if (this.config.markdown.addTableOfContents) {
+    if (rulesForThisSite.markdown.addTableOfContents) {
       markdown = this.addTableOfContents(markdown);
     }
     
@@ -286,12 +301,16 @@ class MarkdownConverter {
   /**
    * 提取页面的主要内容
    * @param {CheerioStatic} $ - Cheerio实例
+   * @param {Array<string>} [contentSelectors] - 内容选择器数组，如果未提供则使用默认配置
    * @returns {Cheerio} 主要内容元素
    * @private
    */
-  extractMainContent($) {
+  extractMainContent($, contentSelectors) {
+    // 使用提供的选择器或默认配置
+    const selectors = contentSelectors || this.config.rules.contentSelectors;
+    
     // 尝试使用配置的内容选择器找到主要内容
-    for (const selector of this.config.rules.contentSelectors) {
+    for (const selector of selectors) {
       const element = $(selector);
       if (element.length > 0) {
         return element.first();
@@ -306,14 +325,18 @@ class MarkdownConverter {
    * 移除不需要的元素
    * @param {CheerioStatic} $ - Cheerio实例
    * @param {Cheerio} content - 内容元素
+   * @param {Array<string>} [removeSelectors] - 要移除的元素选择器数组，如果未提供则使用默认配置
    * @private
    */
-  removeUnwantedElements($, content) {
+  removeUnwantedElements($, content, removeSelectors) {
     // 移除脚本和样式
     content.find('script, style').remove();
     
+    // 使用提供的选择器或默认配置
+    const selectors = removeSelectors || this.config.rules.removeSelectors;
+    
     // 移除配置的不需要的元素
-    for (const selector of this.config.rules.removeSelectors) {
+    for (const selector of selectors) {
       content.find(selector).remove();
     }
     
