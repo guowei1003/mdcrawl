@@ -26,7 +26,15 @@ const defaultSettings = {
     requestInterval: 1000,
     maxRetries: 3,
     userAgent: 'MDCrawl/1.0.0',
-    respectRobotsTxt: true
+    respectRobotsTxt: true,
+    proxy: {
+      enabled: false,
+      host: '',
+      port: 0,
+      username: '',
+      password: '',
+      protocol: 'http'
+    }
   },
   urlFilters: {
     allowedDomains: [],
