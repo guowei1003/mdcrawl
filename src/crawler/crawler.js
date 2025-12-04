@@ -56,13 +56,32 @@ class Crawler {
    */
   async initBrowser() {
     if (this.browserInitialized) return;
-    
+
     this.logger.info('初始化浏览器...');
+
+    // 构建Puppeteer启动参数
+    const puppeteerArgs = ['--no-sandbox', '--disable-setuid-sandbox'];
+
+    // 如果启用了代理，添加代理参数
+    if (this.config.crawler.proxy && this.config.crawler.proxy.enabled) {
+      const proxy = this.config.crawler.proxy;
+      let proxyUrl = `${proxy.protocol}://`;
+
+      // 如果提供了认证信息，添加到代理URL
+      if (proxy.username && proxy.password) {
+        proxyUrl += `${encodeURIComponent(proxy.username)}:${encodeURIComponent(proxy.password)}@`;
+      }
+
+      proxyUrl += `${proxy.host}:${proxy.port}`;
+      puppeteerArgs.push(`--proxy-server=${proxyUrl}`);
+      this.logger.info(`使用代理服务器: ${proxyUrl}`);
+    }
+
     this.browser = await puppeteer.launch({
       headless: 'new',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: puppeteerArgs
     });
-    
+
     this.browserInitialized = true;
     this.logger.info('浏览器初始化完成');
   }

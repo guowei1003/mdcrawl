@@ -91,21 +91,102 @@
           <!-- 用户代理 -->
           <div class="mt-4">
             <label for="userAgent" class="form-label">用户代理 (User Agent)</label>
-            <input 
-              type="text" 
-              id="userAgent" 
-              v-model="settings.crawler.userAgent" 
+            <input
+              type="text"
+              id="userAgent"
+              v-model="settings.crawler.userAgent"
               class="form-input"
             >
             <p class="text-xs text-gray-500 mt-1">发送HTTP请求时使用的用户代理标识</p>
           </div>
-          
+
+          <!-- 代理设置 -->
+          <div class="mt-4">
+            <h3 class="text-md font-medium mb-3">代理设置</h3>
+
+            <div class="mb-3 flex items-center">
+              <input
+                type="checkbox"
+                id="proxyEnabled"
+                v-model="settings.crawler.proxy.enabled"
+                class="mr-2"
+              >
+              <label for="proxyEnabled" class="form-label mb-0">启用代理</label>
+            </div>
+
+            <div v-if="settings.crawler.proxy.enabled" class="space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- 代理协议 -->
+                <div>
+                  <label for="proxyProtocol" class="form-label">代理协议</label>
+                  <select
+                    id="proxyProtocol"
+                    v-model="settings.crawler.proxy.protocol"
+                    class="form-input"
+                  >
+                    <option value="http">HTTP</option>
+                    <option value="https">HTTPS</option>
+                    <option value="socks5">SOCKS5</option>
+                  </select>
+                </div>
+
+                <!-- 代理端口 -->
+                <div>
+                  <label for="proxyPort" class="form-label">代理端口</label>
+                  <input
+                    type="number"
+                    id="proxyPort"
+                    v-model.number="settings.crawler.proxy.port"
+                    min="1"
+                    max="65535"
+                    class="form-input"
+                  >
+                </div>
+              </div>
+
+              <!-- 代理主机 -->
+              <div>
+                <label for="proxyHost" class="form-label">代理主机</label>
+                <input
+                  type="text"
+                  id="proxyHost"
+                  v-model="settings.crawler.proxy.host"
+                  class="form-input"
+                  placeholder="例如: proxy.example.com"
+                >
+              </div>
+
+              <!-- 代理认证 -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="proxyUsername" class="form-label">用户名 (可选)</label>
+                  <input
+                    type="text"
+                    id="proxyUsername"
+                    v-model="settings.crawler.proxy.username"
+                    class="form-input"
+                  >
+                </div>
+
+                <div>
+                  <label for="proxyPassword" class="form-label">密码 (可选)</label>
+                  <input
+                    type="password"
+                    id="proxyPassword"
+                    v-model="settings.crawler.proxy.password"
+                    class="form-input"
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- 遵循robots.txt -->
           <div class="mt-4 flex items-center">
-            <input 
-              type="checkbox" 
-              id="respectRobotsTxt" 
-              v-model="settings.crawler.respectRobotsTxt" 
+            <input
+              type="checkbox"
+              id="respectRobotsTxt"
+              v-model="settings.crawler.respectRobotsTxt"
               class="mr-2"
             >
             <label for="respectRobotsTxt" class="form-label mb-0">遵循robots.txt规则</label>
@@ -380,7 +461,15 @@ const settings = reactive({
     requestInterval: 1000,
     maxRetries: 3,
     userAgent: 'MDCrawl/1.0.0',
-    respectRobotsTxt: true
+    respectRobotsTxt: true,
+    proxy: {
+      enabled: false,
+      host: '',
+      port: 0,
+      username: '',
+      password: '',
+      protocol: 'http'
+    }
   },
   urlFilters: {
     allowedDomains: [],

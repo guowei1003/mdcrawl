@@ -20,9 +20,24 @@ module.exports = {
     // 是否遵循robots.txt规则
     respectRobotsTxt: true,
     // 用户代理
-    userAgent: 'MDCrawl/1.0.0 (+https://github.com/yourusername/mdcrawl)'
+    userAgent: 'MDCrawl/1.0.0 (+https://github.com/yourusername/mdcrawl)',
+    // 代理设置
+    proxy: {
+      // 是否启用代理
+      enabled: false,
+      // 代理服务器地址
+      host: '',
+      // 代理服务器端口
+      port: 0,
+      // 代理认证用户名
+      username: '',
+      // 代理认证密码
+      password: '',
+      // 代理协议 (http, https, socks5)
+      protocol: 'http'
+    }
   },
-  
+
   // 认证配置
   auth: {
     // 默认不启用认证
@@ -34,7 +49,7 @@ module.exports = {
     // 密码
     password: ''
   },
-  
+
   // URL过滤规则
   urlFilters: {
     // 允许的域名（默认只允许同源）
@@ -45,7 +60,7 @@ module.exports = {
       '\\?(utm_|source=|from=)'
     ]
   },
-  
+
   // Markdown转换配置
   markdown: {
     // 是否保留HTML标签
@@ -61,7 +76,7 @@ module.exports = {
     // 是否添加目录
     addTableOfContents: true
   },
-  
+
   // 规则引擎配置
   rules: {
     // 规则文件路径
@@ -78,7 +93,7 @@ module.exports = {
       promptTemplate: 'config/prompt-template.txt'
     }
   },
-  
+
   // 输出配置
   output: {
     // 工作区目录

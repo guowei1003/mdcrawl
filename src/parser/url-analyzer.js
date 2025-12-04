@@ -5,6 +5,7 @@
 
 const URL = require('url').URL;
 const path = require('path');
+const UaParser = require('./ua-parser');
 
 /**
  * URL分析器类
@@ -19,6 +20,9 @@ class UrlAnalyzer {
     
     // 编译排除模式正则表达式
     this.excludePatterns = this.config.urlFilters.excludePatterns.map(pattern => new RegExp(pattern));
+    
+    // 初始化 UA 解析器
+    this.uaParser = new UaParser(config);
   }
   
   /**
@@ -150,6 +154,60 @@ class UrlAnalyzer {
       // 如果URL无效，返回默认文件名
       return 'page_' + Date.now() + '.md';
     }
+  }
+  
+  /**
+   * 解析 User-Agent 字符串
+   * @param {string} userAgent - User-Agent 字符串
+   * @returns {Object} 解析结果
+   */
+  parseUserAgent(userAgent) {
+    return this.uaParser.parse(userAgent);
+  }
+  
+  /**
+   * 获取浏览器信息
+   * @param {string} userAgent - User-Agent 字符串
+   * @returns {Object} 浏览器信息
+   */
+  getBrowserInfo(userAgent) {
+    return this.uaParser.getBrowser(userAgent);
+  }
+  
+  /**
+   * 获取操作系统信息
+   * @param {string} userAgent - User-Agent 字符串
+   * @returns {Object} 操作系统信息
+   */
+  getOSInfo(userAgent) {
+    return this.uaParser.getOS(userAgent);
+  }
+  
+  /**
+   * 获取设备类型
+   * @param {string} userAgent - User-Agent 字符串
+   * @returns {string} 设备类型
+   */
+  getDeviceType(userAgent) {
+    return this.uaParser.getDeviceType(userAgent);
+  }
+  
+  /**
+   * 判断是否为移动设备
+   * @param {string} userAgent - User-Agent 字符串
+   * @returns {boolean} 是否为移动设备
+   */
+  isMobileDevice(userAgent) {
+    return this.uaParser.isMobile(userAgent);
+  }
+  
+  /**
+   * 判断是否为爬虫
+   * @param {string} userAgent - User-Agent 字符串
+   * @returns {boolean} 是否为爬虫
+   */
+  isCrawler(userAgent) {
+    return this.uaParser.isCrawler(userAgent);
   }
 }
 

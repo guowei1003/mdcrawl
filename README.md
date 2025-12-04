@@ -15,6 +15,7 @@ MDCrawl 是一个专业的网页爬虫工具，能够将网页内容转换为 Ma
 - 身份验证：支持基本的用户名密码登录认证
 - 可配置规则：支持自定义规则和大模型辅助分析，提高转换质量
 - 防循环机制：记录已爬取 URL，避免重复爬取和无限循环
+- 代理支持：支持HTTP、HTTPS和SOCKS5代理，可配置代理服务器地址、端口和认证信息
 - Web界面：提供友好的用户界面，方便管理爬取任务和查看结果
 
 <div align="center" style="gap: 20px;">
@@ -113,6 +114,9 @@ node src/index.js https://example.com -d 2 -o ./my-output
 
 # 启用认证
 node src/index.js https://example.com -a -u username -p password
+
+# 使用自定义配置文件（包含代理设置）
+node src/index.js https://example.com --config ./my-config.js
 ```
 
 ### Web界面
@@ -151,6 +155,7 @@ npm run build
 - 浏览和下载生成的Markdown文件
 - 查看下载的图片资源
 - 停止或删除任务
+- 配置代理服务器（在系统设置中配置HTTP、HTTPS或SOCKS5代理）
 
 ## 开发计划
 
@@ -201,6 +206,7 @@ npm run build
 - 完善使用文档
 - 添加 API 文档
 - 创建使用示例
+- 添加代理配置示例
 
 ## 技术栈
 
@@ -238,6 +244,7 @@ npm run build
 - Markdown转换配置：图片下载、目录生成等
 - 规则引擎配置：自定义规则、AI辅助分析等
 - 输出配置：工作目录、日志级别等
+- 代理配置：支持HTTP、HTTPS和SOCKS5代理，可配置代理服务器地址、端口和认证信息
 
 ## 联系作者
 欢迎关注我的公众号
